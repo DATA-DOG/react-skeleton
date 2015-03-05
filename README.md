@@ -25,7 +25,10 @@ To build a release with minifications:
     grunt release --env=production
 
 **NOTE:** an environment can be specified to load **<%= environment %>.json** as configuration options for application
-can be related to web api base urls, websocket and such configuration.
+can be related to web api base urls, websocket and such configuration. By default, **development** environment config is loaded.
+
+**eventify** will process all **src/app/*.jsx** files and update **process.env.ANY** to the value of environment variable or option
+from **<%= environment %>.json** file.
 
 ### Adapt to your project
 

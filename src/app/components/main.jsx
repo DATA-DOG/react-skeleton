@@ -19,6 +19,7 @@ var Main = React.createClass({
   },
 
   _handleTouchTap: function() {
+    console.log(process.env.APP_TITLE); // configuration from envify
     alert('1-2-3-4-5');
   }
 

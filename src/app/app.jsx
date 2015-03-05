@@ -6,6 +6,9 @@
   //Needed for React Developer Tools
   window.React = React;
 
+  // set title based on envify configuration
+  document.title = process.env.APP_TITLE;
+
   //Needed for onTouchTap
   //Can go away when react 1.0 release
   //Check this repo:

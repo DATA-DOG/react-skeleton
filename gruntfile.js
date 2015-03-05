@@ -8,11 +8,15 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['build', 'concurrent']);
   grunt.registerTask('build', ['clean', 'browserify', 'less', 'copy', 'concat']);
-  grunt.registerTask('release', ['build', 'uglify', 'cssmin']);
+  grunt.registerTask('release', ['build', 'removelogging', 'uglify', 'cssmin']);
 
   var browserify_vendors = [
-    'material-ui', 'react', 'react-router', 'react-tools',
-    'react-tap-event-plugin', 'reactify', 'underscore'
+    'underscore',
+    'material-ui',
+    'react',
+    'react-router',
+    'react-tools',
+    'react-tap-event-plugin',
   ];
 
   grunt.initConfig({
@@ -37,7 +41,10 @@ module.exports = function(grunt) {
         src: 'src/app/app.jsx',
         dest: '<%= distdir %>/js/<%= version %>.js',
         options: {
-          transform: [ require('grunt-react').browserify ],
+          transform: [
+            ['envify', grunt.file.readJSON((grunt.option('env') || 'development') + '.json')],
+            require('grunt-react').browserify,
+          ],
           external: browserify_vendors
         }
       }
@@ -89,6 +96,13 @@ module.exports = function(grunt) {
       }
     },
 
+    removelogging: {
+      app: {
+        src: "<%= distdir %>/js/<%= version %>.js",
+        dest: "<%= distdir %>/js/<%= version %>.js"
+      }
+    },
+
     watch: {
       code: {
         files: ['src/app/**/*.jsx'],
@@ -121,10 +135,7 @@ module.exports = function(grunt) {
           hostname: 'localhost',
           debug: true,
           livereload: true,
-          open: {
-            target: "http://localhost:8000",
-            appName: "<%= browser %>"
-          }
+          open: { appName: process.env.BROWSER }
         }
       }
     },
