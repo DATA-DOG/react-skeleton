@@ -14,11 +14,25 @@ Install dependencies:
     npm install -g jsxhint grunt-cli
     npm install
 
+## Grunt
+
+The following **grunt** tasks are exposed:
+
+### Build
+
+To simply build sources for development mode:
+
+    grunt build
+
+### Development
+
 Run grunt in development mode, with **watch** and **connect** to serve it in a browser:
 
     grunt
 
 **NOTE:** export **BROWSER** environment variable if it cannot open the page..
+
+### Release
 
 To build a release with minifications:
 
@@ -30,7 +44,13 @@ can be related to web api base urls, websocket and such configuration. By defaul
 **eventify** will process all **src/app/*.jsx** files and update **process.env.ANY** to the value of environment variable or option
 from **<%= environment %>.json** file.
 
-### Adapt to your project
+### Package
+
+This task runs a **release** and archives the production sources to a **tar.gz** archive:
+
+    grunt package
+
+## Adapt to your project
 
 Update git repository.
 

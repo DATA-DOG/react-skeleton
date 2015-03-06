@@ -1,3 +1,4 @@
 # your .idea goes to global ignore specific to your use case: ~/.gitignore
 /dist
 /node_modules
+/*.tar.gz

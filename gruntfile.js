@@ -7,8 +7,9 @@ module.exports = function(grunt) {
   grunt.option('force', true);
 
   grunt.registerTask('default', ['build', 'concurrent']);
-  grunt.registerTask('build', ['clean', 'browserify', 'less', 'copy', 'concat']);
+  grunt.registerTask('build', ['clean', 'jshint', 'browserify', 'less', 'copy', 'concat']);
   grunt.registerTask('release', ['build', 'removelogging', 'uglify', 'cssmin']);
+  grunt.registerTask('package', ['release', 'compress:package']);
 
   var browserify_vendors = [
     'underscore',
@@ -20,18 +21,22 @@ module.exports = function(grunt) {
   ];
 
   grunt.initConfig({
-    distdir: "dist",
-    browser: process.env.BROWSER,
-    banner: '/**\n * React - material-ui <%= pkg.version %>\n */\n',
+    dist: {
+      dir: "dist",
+      js: "<%= dist.dir %>/js/<%= version %>.js",
+      css: "<%= dist.dir %>/css/<%= version %>.css",
+    },
+
     pkg: grunt.file.readJSON('package.json'),
     version: "<%= pkg.name %>-<%= pkg.version %>",
+    banner: '/**\n * React - material-ui <%= pkg.version %>\n */\n',
 
-    clean: ['<%= distdir %>/*'],
+    clean: ['<%= dist.dir %>/*'],
 
     browserify: {
       vendor: {
         src: [],
-        dest: '<%= distdir %>/js/vendor.js',
+        dest: '<%= dist.dir %>/js/vendor.js',
         options: {
           transform: [ require('grunt-react').browserify ],
           require: browserify_vendors
@@ -39,7 +44,7 @@ module.exports = function(grunt) {
       },
       app: {
         src: 'src/app/app.jsx',
-        dest: '<%= distdir %>/js/<%= version %>.js',
+        dest: '<%= dist.js %>',
         options: {
           transform: [
             ['envify', grunt.file.readJSON((grunt.option('env') || 'development') + '.json')],
@@ -53,28 +58,32 @@ module.exports = function(grunt) {
     concat: {
       index: {
         src: ['src/index.html'],
-        dest: '<%= distdir %>/index.html',
+        dest: '<%= dist.dir %>/index.html',
         options: { process: true }
       }
     },
 
     less: {
       app: {
-        files: {'<%= distdir %>/css/<%= version %>.css': 'src/less/main.less'}
+        files: {'<%= dist.css %>': 'src/less/main.less'}
       }
     },
 
     copy: {
       images: {
         files: [
-          { dest: '<%= distdir %>/images/', cwd: 'src/images/', src: '**', expand: true}
+          { dest: '<%= dist.dir %>/images/', cwd: 'src/images/', src: '**', expand: true}
         ]
       },
       fonts: {
         files: [
-          { dest: '<%= distdir %>/fonts/', cwd: 'node_modules/font-awesome/fonts/', src: "**", expand: true}
+          { dest: '<%= dist.dir %>/fonts/', cwd: 'node_modules/font-awesome/fonts/', src: "**", expand: true}
         ]
       }
+    },
+
+    jshint: {
+      files: ['gruntfile.js', 'src/app/**/*.jsx']
     },
 
     uglify: {
@@ -92,14 +101,26 @@ module.exports = function(grunt) {
     cssmin: {
       app: {
         options: {banner: "<%= banner %>"},
-        files: {'<%= distdir %>/css/<%= version %>.css': ['<%= distdir %>/css/<%= version %>.css']}
+        files: {'<%= dist.css %>': ['<%= dist.css %>']}
       }
     },
 
     removelogging: {
       app: {
-        src: "<%= distdir %>/js/<%= version %>.js",
-        dest: "<%= distdir %>/js/<%= version %>.js"
+        src: "<%= dist.js %>",
+        dest: "<%= dist.js %>"
+      }
+    },
+
+    compress: {
+      package: {
+        options: {
+          mode: 'tgz',
+          archive: '<%= pkg.name %>.tar.gz'
+        },
+        files: [
+          {expand: true, cwd: 'dist/', src: ['**'], dest: '.'}
+        ]
       }
     },
 
